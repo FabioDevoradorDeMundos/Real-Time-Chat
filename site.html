@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Mensagem em tempo real</h1>
+    <pre id="messages" style="height:400px;overflow:scroll"></pre>
+    <div style="text-align:center;justify-content:center;display: flex;">
+        <input type="text" id="input" style="padding: 10px; width:300px">
+        <button type="submit" id="btn" syle="padding:10px;hover:opacity:0.0" >Enviar Mensagem</button>
+
+
+    </div>
+
+   
+
+</body>
+</html>
+
+<script>
+    (function (){
+        const input = document.querySelector('#input')
+        const btn = document.querySelector('#btn')
+        const messages = document.querySelector('#messages')
+        console.log(messages)
+
+        let ws;
+
+        function showMessage(message){
+            messages.textContent += `\n\n${message}`;
+            messages.scrollTop = messages.scrollHeight;
+            input.value = ''
+
+        }
+
+        function init(){
+            if(ws){
+                ws.onerror = ws.onopen = ws.onclose = null;
+                ws.close();
+            }
+
+            ws = new WebSocket('ws://localhost:6969');
+            ws.onopen = () => {
+                console.log('Conexão aberta')
+            }
+
+            
+            ws.onmessage = ({ data }) => showMessage(data);
+            ws.onclose = function(){
+                ws = null
+
+            }
+
+        }
+
+        btn.onclick = function(){
+            if(!ws){
+                showMessage("Sem conexão WebSocket :(");
+                return ;
+
+            }
+            ws.send(input.value);
+            console.log(input.value)
+            showMessage(input.value)
+          
+
+        }
+
+        init()
+    })()
+    
+
+
+
+
+</script>
